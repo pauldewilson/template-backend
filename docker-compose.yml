@@ -3,15 +3,6 @@ networks:
     driver: bridge
 
 services:
-  template_backend__redis:
-    build:
-      context: ./redis_container
-      dockerfile: Dockerfile
-    container_name: template_backend__redis
-    ports:
-      - "6379:6379"
-    networks:
-      - app-network
 
   template_backend:
     build:
@@ -29,3 +20,25 @@ services:
       - AUTH_SECRET_KEY=ljqELK-ODjoai3UAHSDKugKAJSgja2HDADgkJLFjGALJSHDG76GHAKSDKjf5AH5kjhAKDJu65765DASKhkASDh
       - ALLOWED_ORIGINS="*"
       - REDIS_URL=redis://localhost:6379/0
+
+  template_backend__redis:
+    build:
+      context: ./redis_container
+      dockerfile: Dockerfile
+    container_name: template_backend__redis
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+
+  template_backend__celery:
+    build:
+      context: ./celery_worker
+      dockerfile: Dockerfile
+    container_name: template_backend__celery
+    depends_on:
+      - template_backend__redis
+    networks:
+      - app-network
+    environment:
+      - REDIS_URL=redis://template_backend__redis:6379/0

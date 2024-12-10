@@ -8,6 +8,7 @@ from app.routers.hello_world import router as hello_world_router
 from app.admin.models import UserAdmin
 from app.admin.auth import AdminAuth
 from app.routers.users import fastapi_users
+from app.routers.celery import router as celery_router
 from app.auth.backend import auth_backend
 from app.schemas import UserRead, UserCreate, UserUpdate
 from app.config import (
@@ -49,6 +50,7 @@ admin = Admin(
     title="Admin Panel"
 )
 admin.add_view(UserAdmin)
+app.include_router(celery_router, prefix=API_V1_PREFIX, tags=["celery"])
 
 # Include routers
 app.include_router(
