@@ -3,13 +3,18 @@ from app.logging import logger
 from app.database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.redis import get_redis
+from app.routers.users import fastapi_users
+
+current_user = fastapi_users.current_user(active=True)
+
 router = APIRouter()
 
 
 @router.get("/ping")
 async def hello_world(
     request: Request,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user=Depends(current_user),
 ):
     """
     Hello World endpoint.
@@ -17,10 +22,12 @@ async def hello_world(
     logger.info("Ping endpoint")
     return "pong"
 
+
 @router.get("/ping_redis")
 async def hello_world(
     request: Request,
-    redis = Depends(get_redis)
+    redis=Depends(get_redis),
+    current_user=Depends(current_user),
 ):
     """
     Hello Redis endpoint.
