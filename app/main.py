@@ -10,7 +10,7 @@ from app.admin.auth import AdminAuth
 from app.routers.users import fastapi_users
 from app.routers.celery import router as celery_router
 from app.auth.backend import auth_backend
-from app.schemas import UserRead, UserCreate, UserUpdate
+from app.schemas.users import UserRead, UserCreate, UserUpdate
 from app.config import (
     ALLOWED_ORIGINS,
     API_V1_PREFIX,
