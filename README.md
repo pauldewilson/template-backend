@@ -1,6 +1,7 @@
-# Modern FastAPI Backend Template with SQLAlchemy and Redis
+# Modern FastAPI Backend Template with SQLAlchemy, Redis, and Celery
 
-A production-ready template for backend applications using FastAPI, SQLAlchemy for database operations, and Redis for caching. This template includes a preconfigured authentication system, admin interface, database migrations, environment management, and more.
+A production-ready template for backend applications using FastAPI, SQLAlchemy for database operations, Redis for caching, and Celery for background task processing.
+This template includes a preconfigured authentication system, admin interface, database migrations, environment management, and more.
 
 ## Features
 
@@ -16,6 +17,7 @@ A production-ready template for backend applications using FastAPI, SQLAlchemy f
 - 🐳 **Docker Ready** - Containerization support with Docker and docker-compose
 - ✨ **Type Hints** - Full type annotation support
 - 🧪 **Testing** - Pytest configuration with async support
+- 🔄 **Celery** - Distributed task queue for background processing
 
 ## Getting Started
 
@@ -38,8 +40,8 @@ pip install -r requirements.txt
 ```env
 ENVIRONMENT=dev
 IS_DOCKER=false
-DATABASE_URL=postgresql://user:password@localhost:5432/dbname
-TEST_DATABASE_URL=postgresql://user:password@localhost:5432/test_dbname
+DATABASE_URL=postgresql://user:password@localhost:5432/template_backend
+TEST_DATABASE_URL=postgresql://user:password@localhost:5432/template_backend_test
 ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
 SECRET_KEY=your-secret-key
 AUTH_SECRET_KEY=your-auth-secret-key
@@ -75,7 +77,7 @@ async with async_session() as session:
 
 6. Start the development server:
 ```bash
-uvicorn app.main:app --reload
+uvicorn app.main:app --reload --port 5000 --host 0.0.0.0
 ```
 
 ### Docker Development
@@ -85,7 +87,7 @@ uvicorn app.main:app --reload
 docker-compose up --build
 ```
 
-The API will be available at `http://localhost:8000`
+The API will be available at `http://localhost:5000`
 
 ## Project Structure
 
@@ -104,14 +106,22 @@ template-backend/
 │   │   └── users.py     # User model
 │   ├── routers/         # API routes
 │   │   ├── hello_world.py
-│   │   └── users.py
+│   │   ├── users.py
+│   │   └── celery.py   # Celery task endpoints
 │   ├── utils/           # Utility functions
 │   ├── config.py        # Configuration management
 │   ├── database.py      # Database setup
 │   ├── logging.py       # Logging configuration
 │   ├── main.py          # Application entry point
 │   ├── redis.py         # Redis configuration
+│   ├── celery_tasks.py  # Celery task definitions
 │   └── schemas.py       # Pydantic models
+├── celery_worker/       # Celery worker configuration
+│   ├── tasks.py        # Task implementations
+│   ├── config.py       # Worker configuration
+│   └── Dockerfile      # Worker container setup
+├── redis_container/    # Redis container setup
+│   └── Dockerfile     # Redis container configuration
 ├── tests/               # Test suite
 ├── .env.dev            # Development environment variables
 ├── Dockerfile          # Docker configuration
@@ -143,11 +153,48 @@ Access the admin interface at `/admin` with the following features:
 - Interactive dashboard
 - Customizable model views
 
+#### Creating a Superuser
+
+There are two ways to create a superuser:
+
+1. Using the interactive CLI script:
+```bash
+# From the project root directory
+python -m app.admin.create_superuser
+```
+This will prompt you to enter:
+- Email address
+- Password
+
+#### Accessing Admin Interface
+
 To access the admin interface:
-1. Create a superuser as shown in the setup instructions
-2. Navigate to `/admin`
-3. Login with superuser credentials
-4. Only users with `is_superuser=True` can access the admin interface
+1. Create a superuser using one of the methods above
+2. Ensure the backend server is running
+3. Navigate to `/admin` in your browser
+4. Login with your superuser credentials
+5. Only users with `is_superuser=True` can access the admin interface
+
+The admin interface provides:
+- User management with full CRUD operations
+- Password hashing for new users
+- Email verification status management
+- User activity status control
+- Timezone management for users
+
+
+## Background Tasks with Celery
+
+The template includes Celery for handling background tasks:
+- Dedicated Celery worker container
+- Redis as message broker
+- Task scheduling and monitoring
+- Example task endpoints in `/api/v1/celery/`
+
+To use Celery:
+1. Define tasks in `app/celery_tasks.py`
+2. Implement task logic in `celery_worker/tasks.py`
+3. Access task status and results through the API
 
 ## Environment Configuration
 
@@ -180,10 +227,11 @@ alembic downgrade -1
 
 ### Redis Cache
 
-The template includes Redis for caching and session management:
+The template includes Redis for caching, session management, and Celery message broker:
 - Configurable connection settings
 - Async Redis client
 - Helper functions for common operations
+- Dedicated Redis container
 
 ## API Documentation
 
@@ -206,7 +254,7 @@ The template includes:
 
 ## Available Scripts
 
-- `uvicorn app.main:app --reload` - Start development server
+- `uvicorn app.main:app --reload --port 5000 --host 0.0.0.0` - Start development server
 - `pytest` - Run test suite
 - `alembic upgrade head` - Apply all migrations
 - `start_backend.bat` - Windows startup script
