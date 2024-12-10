@@ -1,16 +1,34 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.logging import logger # Empty import required for logging to work
 from sqladmin import Admin
-from app.logging import logger
+from starlette.middleware.sessions import SessionMiddleware
 from app.database import engine
 from app.routers.hello_world import router as hello_world_router
 from app.admin.models import UserAdmin
+from app.admin.auth import AdminAuth
 from app.routers.users import fastapi_users
 from app.auth.backend import auth_backend
 from app.schemas import UserRead, UserCreate, UserUpdate
-from app.config import ALLOWED_ORIGINS, API_V1_PREFIX, AUTH_PREFIX
+from app.config import (
+    ALLOWED_ORIGINS,
+    API_V1_PREFIX,
+    AUTH_PREFIX,
+    SECRET_KEY
+)
+
 
 app = FastAPI()
+
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=SECRET_KEY,
+    session_cookie="admin-session",
+    max_age=86400,
+    same_site="lax",
+    https_only=False,
+    path="/",
+)
 
 # Add CORS middleware
 app.add_middleware(
@@ -21,8 +39,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Configure SQLAdmin
-admin = Admin(app, engine)
+# Add admin panel
+authentication_backend = AdminAuth(secret_key=SECRET_KEY)
+admin = Admin(
+    app,
+    engine,
+    authentication_backend=authentication_backend,
+    base_url="/admin/",
+    title="Admin Panel"
+)
 admin.add_view(UserAdmin)
 
 # Include routers

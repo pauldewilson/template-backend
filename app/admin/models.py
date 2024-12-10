@@ -2,6 +2,8 @@ from fastapi import Request
 from sqladmin import ModelView
 from app.models.users import User
 from typing import Any
+from datetime import datetime
+from datetime import UTC
 
 
 class UserAdmin(ModelView, model=User):
@@ -33,6 +35,14 @@ class UserAdmin(ModelView, model=User):
     name = "User"
     name_plural = "Users"
     icon = "fa-solid fa-users"
+    form_columns = [
+        "email",
+        "hashed_password",
+        "timezone",
+        "is_active",
+        "is_superuser",
+        "is_verified",
+    ]
 
     async def on_model_change(self, data: dict, model: Any, is_created: bool, request: Request) -> None:
         """Hash password using bcrypt directly"""
@@ -45,5 +55,5 @@ class UserAdmin(ModelView, model=User):
 
             # Set is_verified and is_active for new users
             if is_created:
-                data['is_verified'] = True
                 data['is_active'] = True
+                data['created_at'] = datetime.now(UTC)
