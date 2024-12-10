@@ -1,7 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.logging import logger  # Required for logging to work
+from sqladmin import Admin
+from app.logging import logger
+from app.database import engine
 from app.routers.hello_world import router as hello_world_router
+from app.admin.models import UserAdmin
 from app.routers.users import fastapi_users
 from app.auth.backend import auth_backend
 from app.schemas import UserRead, UserCreate, UserUpdate
@@ -18,9 +21,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# # Mount static files
-# from fastapi.staticfiles import StaticFiles
-# app.mount("/static", StaticFiles(directory="static"), name="static")
+# Configure SQLAdmin
+admin = Admin(app, engine)
+admin.add_view(UserAdmin)
 
 # Include routers
 app.include_router(
@@ -49,12 +52,6 @@ app.include_router(
 
 app.include_router(
     fastapi_users.get_reset_password_router(),
-    prefix=API_V1_PREFIX + AUTH_PREFIX,
-    tags=["auth"],
-)
-
-app.include_router(
-    fastapi_users.get_verify_router(UserRead),
     prefix=API_V1_PREFIX + AUTH_PREFIX,
     tags=["auth"],
 )
