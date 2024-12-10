@@ -1,0 +1,2 @@
+Generic single-database configuration.
+Toggle this number to force a run of the migration: 1

@@ -1,0 +1,31 @@
+networks:
+  app-network:
+    driver: bridge
+
+services:
+  template_backend__redis:
+    build:
+      context: ./redis_container
+      dockerfile: Dockerfile
+    container_name: template_backend__redis
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+
+  template_backend:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: template_backend
+    ports:
+      - "5000:5000"
+    networks:
+      - app-network
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@localhost:5432/template_backend
+      - TEST_DATABASE_URL=postgresql://postgres:postgres@localhost:5432/template_backend__tests
+      - SECRET_KEY=HDGj3giTASYDTvkwekHQG67hiADUguyugjDAGSD6gk6jGAJ3SD2GUQI4weK5AJShGASDOnEFwLHxEYbhoUHAODIUGuy
+      - AUTH_SECRET_KEY=ljqELK-ODjoai3UAHSDKugKAJSgja2HDADgkJLFjGALJSHDG76GHAKSDKjf5AH5kjhAKDJu65765DASKhkASDh
+      - ALLOWED_ORIGINS="*"
+      - REDIS_URL=redis://localhost:6379/0
