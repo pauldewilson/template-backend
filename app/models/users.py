@@ -1,4 +1,6 @@
 import enum
+from datetime import datetime
+from datetime import UTC
 
 from typing import Optional, Union, Dict, Any
 
@@ -15,6 +17,7 @@ from sqlalchemy import (
     Column,
     Integer,
     Enum,
+    DateTime,
 )
 from sqlalchemy.orm import mapped_column, Mapped
 
@@ -67,6 +70,12 @@ class User(SQLAlchemyBaseUserTable[int], Base):
         Enum(TimezoneEnum),
         nullable=False,
         default=TimezoneEnum.EUROPE_LONDON
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(UTC),
+        nullable=False
     )
 
 

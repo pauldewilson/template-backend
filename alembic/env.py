@@ -13,9 +13,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from dotenv import load_dotenv
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
 
-from app.models.models import *
 from app.models.users import *
-from app.models.logs import *
 from app.config import *
 
 # this is the Alembic Config object, which provides access to the values within the .ini file in use.
