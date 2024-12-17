@@ -24,7 +24,7 @@ from sqlalchemy.orm import mapped_column, Mapped
 from app.database import Base, get_db
 from app.config import AUTH_SECRET_KEY
 from app.logging import logger
-from app.schemas import UserCreate
+from app.schemas.users import UserCreate
 
 
 class TimezoneEnum(str, enum.Enum):
