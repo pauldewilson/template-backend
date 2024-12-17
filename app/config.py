@@ -27,7 +27,8 @@ SECRET_KEY: str = os.getenv("SECRET_KEY")
 AUTH_SECRET_KEY: str = os.getenv("AUTH_SECRET_KEY")
 IS_TESTING: bool = os.getenv("TESTING") == "true"
 REDIS_URL: str = os.getenv("REDIS_URL")
-
+GOOGLE_OAUTH_CLIENT_ID: str = os.getenv("GOOGLE_OAUTH_CLIENT_ID")
+GOOGLE_OAUTH_CLIENT_SECRET: str = os.getenv("GOOGLE_OAUTH_CLIENT_SECRET")
 # Configuration checks
 if DATABASE_URL is None:
     raise ValueError("DATABASE_URL is not set")
@@ -49,6 +50,12 @@ if AUTH_SECRET_KEY is None:
 if REDIS_URL is None:
     raise ValueError("REDIS_URL is not set")
 
+if GOOGLE_OAUTH_CLIENT_ID is None:
+    raise ValueError("GOOGLE_OAUTH_CLIENT_ID is not set")
+
+if GOOGLE_OAUTH_CLIENT_SECRET is None:
+    raise ValueError("GOOGLE_OAUTH_CLIENT_SECRET is not set")
+
 logger.info("ENVIRONMENT: %s", ENVIRONMENT)
 logger.info("IS_DOCKER: %s", IS_DOCKER)
 logger.info("IS_TESTING: %s", IS_TESTING)
@@ -62,3 +69,5 @@ logger.info("SECRET_KEY: %s", string_snippet(SECRET_KEY))
 logger.info("SECRET_KEY: %s", string_snippet(SECRET_KEY))
 logger.info("AUTH_SECRET_KEY: %s", string_snippet(AUTH_SECRET_KEY))
 logger.info("REDIS_URL: %s", string_snippet(REDIS_URL))
+logger.info("GOOGLE_OAUTH_CLIENT_ID: %s", string_snippet(GOOGLE_OAUTH_CLIENT_ID))
+logger.info("GOOGLE_OAUTH_CLIENT_SECRET: %s", string_snippet(GOOGLE_OAUTH_CLIENT_SECRET))

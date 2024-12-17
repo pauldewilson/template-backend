@@ -2,7 +2,7 @@ import enum
 from datetime import datetime
 from datetime import UTC
 
-from typing import Optional, Union, Dict, Any
+from typing import Optional, Union, Dict, Any, List
 
 from fastapi import Depends, Request
 from fastapi_users.db import SQLAlchemyBaseUserTable, SQLAlchemyUserDatabase
@@ -19,12 +19,13 @@ from sqlalchemy import (
     Enum,
     DateTime,
 )
-from sqlalchemy.orm import mapped_column, Mapped
+from sqlalchemy.orm import mapped_column, Mapped, relationship
 
 from app.database import Base, get_db
 from app.config import AUTH_SECRET_KEY
 from app.logging import logger
 from app.schemas.users import UserCreate
+from app.models.oauth import OAuthAccount
 
 
 class TimezoneEnum(str, enum.Enum):
@@ -76,6 +77,10 @@ class User(SQLAlchemyBaseUserTable[int], Base):
         DateTime(timezone=True),
         default=lambda: datetime.now(UTC),
         nullable=False
+    )
+
+    oauth_accounts: Mapped[List[OAuthAccount]] = relationship(
+        "OAuthAccount", lazy="joined", cascade="all, delete"
     )
 
 

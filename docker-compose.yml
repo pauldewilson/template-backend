@@ -20,6 +20,8 @@ services:
       - AUTH_SECRET_KEY=ljqELK-ODjoai3UAHSDKugKAJSgja2HDADgkJLFjGALJSHDG76GHAKSDKjf5AH5kjhAKDJu65765DASKhkASDh
       - ALLOWED_ORIGINS="*"
       - REDIS_URL=redis://localhost:6379/0
+      - GOOGLE_OAUTH_CLIENT_ID=your-client-id-from-google-cloud-console
+      - GOOGLE_OAUTH_CLIENT_SECRET=your-client-secret-from-google-cloud-console
 
   template_backend__redis:
     build:

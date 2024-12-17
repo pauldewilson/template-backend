@@ -33,6 +33,8 @@ ENV SECRET_KEY=HDGj3giTASYDTvkwekHQG67hiADUguyugjDAGSD6gk6jGAJ3SD2GUQI4weK5AJShG
 ENV AUTH_SECRET_KEY=ljqELK-ODjoai3UAHSDKugKAJSgja2HDADgkJLFjGALJSHDG76GHAKSDKjf5AH5kjhAKDJu65765DASKhkASDh
 ENV ALLOWED_ORIGINS="*"
 ENV REDIS_URL=redis://localhost:6379/0
+ENV GOOGLE_OAUTH_CLIENT_ID=your-client-id-from-google-cloud-console
+ENV GOOGLE_OAUTH_CLIENT_SECRET=your-client-secret-from-google-cloud-console
 
 
 # Run the application using Uvicorn.
