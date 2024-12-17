@@ -48,34 +48,27 @@ AUTH_SECRET_KEY=your-auth-secret-key
 REDIS_URL=redis://localhost:6379
 ```
 
-4. Run database migrations:
+4. Set up the database / Init SQL:
+    1. Open `db.bat` and replace any variables as necessary
+        1. namely `DBNAME` to match the database name per .env file.
+    2. Place any required initial SQL into `db.sql` though it is fine to leave this empty
+
+    ```bash
+    # Create the database
+    db.bat
+
+    # Optionally run DROP AND CREATE
+    db.bat --dropandcreate
+    ```
+
+5. Run database migrations:
 ```bash
 alembic upgrade head
 ```
 
-5. Create a superuser for admin access:
-```python
-# Using the FastAPI shell or a script
-from app.models.users import User
-from app.database import async_session
-from fastapi_users.password import PasswordHelper
+6. Create a superuser for admin access using one of the methods described in the Admin Interface section
 
-async with async_session() as session:
-    pwd_helper = PasswordHelper()
-    hashed_password = pwd_helper.hash("your-password")
-
-    user = User(
-        email="admin@example.com",
-        hashed_password=hashed_password,
-        is_superuser=True,
-        is_verified=True,
-        is_active=True
-    )
-    session.add(user)
-    await session.commit()
-```
-
-6. Start the development server:
+7. Start the development server:
 ```bash
 uvicorn app.main:app --reload --port 5000 --host 0.0.0.0
 ```
@@ -124,10 +117,50 @@ template-backend/
 │   └── Dockerfile     # Redis container configuration
 ├── tests/               # Test suite
 ├── .env.dev            # Development environment variables
+├── db.bat              # Database initialization script
+├── db.sql              # Initial SQL setup script
 ├── Dockerfile          # Docker configuration
 ├── docker-compose.yml  # Docker Compose configuration
 └── requirements.txt    # Python dependencies
 ```
+
+## Database Management
+
+### Initial Setup and Migrations
+
+The template provides two key files for database management:
+
+1. `db.bat` - A Windows batch script for database initialization:
+   - `db.bat` - Creates the database if it doesn't exist
+   - `db.bat --dropandcreate` - Drops the existing database and creates a new one
+   - Automatically executes any SQL in `db.sql` after creation
+
+2. `db.sql` - A SQL script for initial database setup:
+   - Executed automatically by `db.bat`
+   - Place any initial SQL commands, stored procedures, or setup scripts here
+   - Runs after database creation but before migrations
+
+### Alembic Migrations
+
+Create and apply database migrations:
+```bash
+# Create a new migration
+alembic revision --autogenerate -m "description"
+
+# Apply migrations
+alembic upgrade head
+
+# Rollback migrations
+alembic downgrade -1
+```
+
+### Redis Cache
+
+The template includes Redis for caching, session management, and Celery message broker:
+- Configurable connection settings
+- Async Redis client
+- Helper functions for common operations
+- Dedicated Redis container
 
 ## Authentication System
 
@@ -153,7 +186,7 @@ Access the admin interface at `/admin` with the following features:
 - Interactive dashboard
 - Customizable model views
 
-#### Creating a Superuser
+### Creating a Superuser
 
 There are two ways to create a superuser:
 
@@ -166,7 +199,29 @@ This will prompt you to enter:
 - Email address
 - Password
 
-#### Accessing Admin Interface
+2. Using Python code:
+```python
+# Using the FastAPI shell or a script
+from app.models.users import User
+from app.database import async_session
+from fastapi_users.password import PasswordHelper
+
+async with async_session() as session:
+    pwd_helper = PasswordHelper()
+    hashed_password = pwd_helper.hash("your-password")
+
+    user = User(
+        email="admin@example.com",
+        hashed_password=hashed_password,
+        is_superuser=True,
+        is_verified=True,
+        is_active=True
+    )
+    session.add(user)
+    await session.commit()
+```
+
+### Accessing Admin Interface
 
 To access the admin interface:
 1. Create a superuser using one of the methods above
@@ -181,7 +236,6 @@ The admin interface provides:
 - Email verification status management
 - User activity status control
 - Timezone management for users
-
 
 ## Background Tasks with Celery
 
@@ -209,30 +263,6 @@ Environment variables are configured in:
 - `docker-compose.yml` - Runtime overrides
 - `.env.dev` - Development settings
 
-## Database Management
-
-### Migrations
-
-Create and apply database migrations:
-```bash
-# Create a new migration
-alembic revision --autogenerate -m "description"
-
-# Apply migrations
-alembic upgrade head
-
-# Rollback migrations
-alembic downgrade -1
-```
-
-### Redis Cache
-
-The template includes Redis for caching, session management, and Celery message broker:
-- Configurable connection settings
-- Async Redis client
-- Helper functions for common operations
-- Dedicated Redis container
-
 ## API Documentation
 
 Once running, access the API documentation at:
@@ -258,6 +288,7 @@ The template includes:
 - `pytest` - Run test suite
 - `alembic upgrade head` - Apply all migrations
 - `start_backend.bat` - Windows startup script
+- `db.bat` - Database initialization script
 
 ## Docker Commands
 
